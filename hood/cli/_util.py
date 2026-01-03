@@ -66,4 +66,4 @@ def write_private_key(key: SigningKey):
 
 
 def get_credential():
-    return _auth.Credential(get_api_key(), get_private_key().encode())
+    return _auth.Credential(get_api_key(), get_private_key())

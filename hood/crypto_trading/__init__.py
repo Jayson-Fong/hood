@@ -18,7 +18,9 @@ if TYPE_CHECKING:
 
 
 @dataclasses.dataclass
-class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
+class CryptoTradingClient(
+    _endpoint.AccountsMixin, _endpoint.MarketMixin, _endpoint.TradingMixin
+):
 
     credential: auth.Credential
     base_url: str = _constants.ROBINHOOD_BASE_URL

@@ -1,6 +1,6 @@
 from typing import TypeVar, Union, Tuple, Protocol, List, Dict, TypedDict, Optional
 
-QueryParams = Dict[str, Union[str, List[str]]]
+QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
 
 # pylint: disable=too-few-public-methods
