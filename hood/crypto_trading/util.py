@@ -4,6 +4,7 @@ from typing import Optional, Union, TypeVar, List, cast, Dict
 from urllib.parse import urlparse, urlencode, parse_qs
 
 from . import structures as _struct
+from .structures import QueryParams
 
 
 def get_current_timestamp() -> int:
@@ -28,7 +29,7 @@ def inject_qs(url: str, params: Optional[_struct.QueryParams] = None) -> str:
         return url
 
     parsed_url = urlparse(url)
-    query_params = cast(Dict[str, Union[str, List[str]]], parse_qs(parsed_url.query))
+    query_params = cast(QueryParams, parse_qs(parsed_url.query))
     query_params.update(params)
 
     updated_qs = urlencode(query_params, doseq=True)
