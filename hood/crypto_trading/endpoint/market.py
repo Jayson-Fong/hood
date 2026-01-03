@@ -41,7 +41,7 @@ class MarketMixin:
         **kwargs,
     ):
         return self.make_json_api_request(
-            f"api/v1/crypto/marketdata/estimated_price/",
+            "api/v1/crypto/marketdata/estimated_price/",
             params={
                 "symbol": symbol,
                 "side": side,

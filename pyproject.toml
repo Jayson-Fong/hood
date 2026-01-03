@@ -1,0 +1,15 @@
+[project]
+name = "hood"
+version = "0.0.1"
+requires-python = ">=3.8"
+authors = [
+    {name = "Jayson Fong", email = "jayson.fong@gatech.edu"}
+]
+description = "Unofficial library for the Robinhood Crypto Trading API"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/Jayson-Fong/hood"
+Issues = "https://github.com/Jayson-Fong/hood/issues"
