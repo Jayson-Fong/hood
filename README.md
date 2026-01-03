@@ -21,8 +21,9 @@ This package seeks to provide a client for the official
 details alongside performing trading activities. It does _not_ incorporate endpoints to interact with Robinhood's 
 undocumented brokerage API.
 
-While [Robinhood itself provides a sample client](https://docs.robinhood.com/crypto/trading/), it does not provide any
-type hinting for its API's possible return types, types for order configuration, or methods to handle pagination.
+While [Robinhood itself provides a sample client](https://docs.robinhood.com/crypto/trading/#section/Getting-Started), 
+it does not provide any type hinting for its API's possible return types, types for order configuration, or methods to 
+handle pagination.
 
 The development of this package is **not affiliated with Robinhood**.
 
@@ -70,4 +71,4 @@ advice.
   - [ ] Place New Crypto Order
   - [ ] Cancel Open Crypto Order
 - [ ] API
-  - Pagination Iterator
+  - [ ] Pagination Iterator
