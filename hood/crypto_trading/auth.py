@@ -2,18 +2,18 @@ import base64
 from dataclasses import dataclass, InitVar, field
 from typing import Union
 
-from nacl.signing import SigningKey
+import nacl.signing
 
 
 from . import constants as _constants
 
 
-@dataclass()
+@dataclass
 class Credential:
 
     api_key: str = field(repr=False)
-    private_key_seed: InitVar[Union[bytes, SigningKey]]
-    private_key: SigningKey = field(init=False, repr=False)
+    private_key_seed: InitVar[Union[bytes, nacl.signing.SigningKey]]
+    private_key: nacl.signing.SigningKey = field(init=False, repr=False)
 
     def sign_message(
         self, path: str, body: str, timestamp: int, method: _constants.RequestMethod
@@ -28,11 +28,11 @@ class Credential:
 
     @staticmethod
     def generate():
-        return SigningKey.generate()
+        return nacl.signing.SigningKey.generate()
 
-    def __post_init__(self, private_key_seed: Union[bytes, SigningKey]):
+    def __post_init__(self, private_key_seed: Union[bytes, nacl.signing.SigningKey]):
         if isinstance(private_key_seed, bytes):
-            self.private_key = SigningKey(private_key_seed)
+            self.private_key = nacl.signing.SigningKey(private_key_seed)
         else:
             self.private_key = private_key_seed
 

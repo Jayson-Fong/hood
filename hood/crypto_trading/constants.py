@@ -2,6 +2,9 @@ from enum import IntEnum
 
 import requests
 
+
+ROBINHOOD_BASE_URL = "https://trading.robinhood.com/"
+
 METHODS = (requests.get, requests.post)
 
 
@@ -16,4 +19,8 @@ class RequestMethod(IntEnum):
         return self.name
 
 
-__all__ = ["RequestMethod"]
+class Object:
+    pass
+
+
+__all__ = ["RequestMethod", "Object"]

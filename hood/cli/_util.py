@@ -13,7 +13,7 @@ API_KEY_PATH = CONFIG_PATH / "api_key"
 PRIVATE_KEY_PATH = CONFIG_PATH / "private_key"
 
 
-def handle_exception(message: str, *handle: BaseException):
+def handle_exception(message: str, *handle: type[BaseException]):
     if not handle:
         handle = (Exception,)
 

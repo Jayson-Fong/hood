@@ -1,24 +1,27 @@
 import dataclasses
 import json
 import urllib.parse
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 
 import requests
 
+# `auth` is purposefully exposed here for convenience.
 from . import (
     auth,
     constants as _constants,
     util as _util,
-    endpoint as _endpoint,
-    structures as _structures,
+    _endpoint,
 )
+
+if TYPE_CHECKING:
+    from . import structures as _structs
 
 
 @dataclasses.dataclass
 class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
 
     credential: auth.Credential
-    base_url: str = "https://trading.robinhood.com/"
+    base_url: str = _constants.ROBINHOOD_BASE_URL
 
     def get_authorization_header(
         self,
@@ -35,6 +38,7 @@ class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
             "x-timestamp": str(timestamp),
         }
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def make_api_request(
         self,
         path: str,
@@ -42,9 +46,9 @@ class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
         method: _constants.RequestMethod = _constants.RequestMethod.GET,
         headers: Optional[Dict[str, str]] = None,
         raise_for_status: bool = True,
-        params: Optional[_structures.QueryParams] = None,
+        params: Optional["_structs.QueryParams"] = None,
         **kwargs,
-    ) -> _structures.APIResponse[requests.Response]:
+    ) -> "_structs.APIResponse[requests.Response]":
         request_target = _util.inject_qs(path, params)
         request_headers = self.get_authorization_header(request_target, body, method)
         if headers:
@@ -67,7 +71,7 @@ class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
 
         return response, None
 
-    # TODO: Improve return type
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def make_json_api_request(
         self,
         path: str,
@@ -77,7 +81,7 @@ class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
         raise_for_status: bool = True,
         create_namespace: bool = False,
         **kwargs,
-    ) -> _structures.APIResponse:
+    ) -> "_structs.APIResponse":
         response, err = self.make_api_request(
             path, body, method, headers, raise_for_status, **kwargs
         )
@@ -92,4 +96,4 @@ class CryptoTradingClient(_endpoint.AccountsMixin, _endpoint.MarketMixin):
         return json_response, err
 
 
-__all__ = ["CryptoTradingClient"]
+__all__ = ["CryptoTradingClient", "auth"]
