@@ -39,13 +39,13 @@ class TradingMixin(_Client):
 
     def holdings(
         self,
-        *symbols: str,
+        *asset_code: str,
         create_namespace: bool = False,
         **kwargs,
     ) -> "_structs.MaybeAPIResponse":
         return self.make_json_api_request(
             "api/v1/crypto/trading/holdings/",
-            params={"asset_code": list(symbols)},
+            params={"asset_code": list(asset_code)},
             create_namespace=create_namespace,
             **kwargs,
         )
@@ -165,7 +165,7 @@ class TradingMixin(_Client):
     ) -> "_structs.MaybeAPIResponse":
         return self.make_api_request(
             f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",
-            create_namespace=create_namespace,
+            # create_namespace=create_namespace,
             method=_constants.RequestMethod.POST,
             **kwargs,
         )
