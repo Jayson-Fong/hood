@@ -20,7 +20,8 @@ from .. import schema as _schema
 
 
 if TYPE_CHECKING:
-    from _typeshed import DataclassInstance  # noqa
+    # noinspection PyUnresolvedReferences
+    from _typeshed import DataclassInstance
 
 
 def unpack_union(field_type: Union[Type[Any], str]) -> Union[Type[Any], str]:

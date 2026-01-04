@@ -11,7 +11,8 @@ from typing import (
 
 if TYPE_CHECKING:
     import requests
-    from .. import schema as _schema  # noqa
+    # noinspection PyUnresolvedReferences
+    from .. import schema as _schema
 
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 

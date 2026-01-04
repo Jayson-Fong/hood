@@ -3,7 +3,8 @@ from typing import Protocol, Dict, Optional, TYPE_CHECKING, Union, TypeVar, Type
 from . import constants as _constants
 
 if TYPE_CHECKING:
-    from _typeshed import DataclassInstance  # noqa
+    # noinspection PyUnresolvedReferences
+    from _typeshed import DataclassInstance
     import requests
     from . import auth as _auth, structures as _structs
 

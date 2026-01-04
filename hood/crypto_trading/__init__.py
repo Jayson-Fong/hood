@@ -17,7 +17,8 @@ from . import (
 )
 
 if TYPE_CHECKING:
-    from _typeshed import DataclassInstance  # noqa
+    # noinspection PyUnresolvedReferences
+    from _typeshed import DataclassInstance
 
 
 _T = TypeVar("_T", bound="DataclassInstance")
