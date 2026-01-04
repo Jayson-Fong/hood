@@ -20,17 +20,17 @@ if TYPE_CHECKING:
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
 
-T = TypeVar("T", bound="DataclassInstance")
+_T = TypeVar("_T", bound="DataclassInstance")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class APIResponse(Generic[T]):
-    data: Optional[T] = None
+class APIResponse(Generic[_T]):
+    data: Optional[_T] = None
     response: Optional["requests.Response"] = None
     error: Optional[BaseException] = None
 
 
-MaybeAPIResponse = APIResponse[Union[T, "_schema.Errors"]]
+MaybeAPIResponse = APIResponse[Union[_T, "_schema.Errors"]]
 
 
 __all__ = ["APIResponse", "MaybeAPIResponse", "QueryParams"]
