@@ -5,10 +5,11 @@ NOTICE: This module is not yet complete and may change without notice.
 import json
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING, Optional, Literal, Dict, Union
+from typing import TYPE_CHECKING, Optional, Literal, Dict, Union, overload
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
+from ...schema import trading as _schema
 
 if TYPE_CHECKING:
     from .. import structures as _structs
@@ -27,33 +28,56 @@ class TradingMixin(_Client):
     def trading_pairs(
         self,
         *symbols: str,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
-        return self.make_json_api_request(
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.TradingPairResults]":
+        params: "_structs.QueryParams" = {"symbol": list(symbols)}
+
+        # fmt: off
+        for param_name, param_value in (
+            ("limit", limit), ("cursor", cursor),
+        ):
+            # fmt: on
+            if param_value is not None:
+                params[param_name] = param_value
+
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/trading_pairs/",
-            params={"symbol": list(symbols)},
-            create_namespace=create_namespace,
-            **kwargs,
+            params=params,
+            success_schema=_schema.TradingPairResults,
+            error_schema=_schema.Errors,
         )
 
     def holdings(
         self,
-        *symbols: str,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
-        return self.make_json_api_request(
+        *asset_code: str,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.HoldingResults]":
+        params: "_structs.QueryParams" = {"asset_code": list(asset_code)}
+
+        # fmt: off
+        for param_name, param_value in (
+            ("limit", limit), ("cursor", cursor),
+        ):
+            # fmt: on
+            if param_value is not None:
+                params[param_name] = param_value
+
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/holdings/",
-            params={"asset_code": list(symbols)},
-            create_namespace=create_namespace,
-            **kwargs,
+            params=params,
+            success_schema=_schema.HoldingResults,
+            error_schema=_schema.Errors,
         )
 
     # noinspection PyShadowingBuiltins
     # pylint: disable=redefined-builtin,too-many-arguments,too-many-positional-arguments,too-many-locals
     def orders(
         self,
+        *,
         created_at_start: Optional[str] = None,
         created_at_end: Optional[str] = None,
         symbol: Optional[str] = None,
@@ -67,11 +91,9 @@ class TradingMixin(_Client):
         updated_at_end: Optional[str] = None,
         cursor: Optional[str] = None,
         limit: Optional[int] = None,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
+    ) -> "_structs.MaybeAPIResponse[_schema.OrderResults]":
         # Create our parameters
-        params = {}
+        params: "_structs.QueryParams" = {}
 
         # fmt: off
         for param_name, param_value in (
@@ -84,18 +106,123 @@ class TradingMixin(_Client):
             if param_value is not None:
                 params[param_name] = param_value
 
-        return self.make_json_api_request(
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/orders/",
             params=params,
-            create_namespace=create_namespace,
-            **kwargs,
+            success_schema=_schema.OrderResults,
+            error_schema=_schema.Errors,
         )
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["limit"],
+        asset_quantity: float,
+        limit_price: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["limit"],
+        quote_amount: float,
+        limit_price: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["market"],
+        asset_quantity: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_limit"],
+        asset_quantity: float,
+        limit_price: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_limit"],
+        quote_amount: float,
+        limit_price: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_loss"],
+        asset_quantity: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_loss"],
+        quote_amount: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
 
     # noinspection PyShadowingBuiltins
     # pylint: disable=redefined-builtin
     def order(
         self,
         symbol: str,
+        *,
         side: Literal["buy", "sell"],
         type: Literal["limit", "market", "stop_limit", "stop_loss"],
         asset_quantity: Optional[float] = None,
@@ -104,11 +231,12 @@ class TradingMixin(_Client):
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,
         time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]":
         if type not in ORDER_REQUIREMENTS:
             raise ValueError(f"Unknown order type {type}")
+
+        if asset_quantity is not None and quote_amount is not None:
+            raise ValueError("Cannot specify both asset quantity and quote amount")
 
         order_config: Dict[str, Union[str, int, float]] = {}
         if asset_quantity is not None:
@@ -139,8 +267,9 @@ class TradingMixin(_Client):
 
             order_config[payload_key] = payload_value
 
-        return self.make_json_api_request(
-            f"api/v1/crypto/trading/orders/",
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
+            "api/v1/crypto/trading/orders/",
             body=json.dumps(
                 {
                     "symbol": symbol,
@@ -150,9 +279,9 @@ class TradingMixin(_Client):
                     f"{type}_order_config": order_config,
                 }
             ),
-            create_namespace=create_namespace,
+            success_schema=_schema.Order,
+            error_schema=_schema.Errors,
             method=_constants.RequestMethod.POST,
-            **kwargs,
         )
 
     # noinspection PyShadowingBuiltins
@@ -160,14 +289,13 @@ class TradingMixin(_Client):
     def cancel(
         self,
         id: str,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
-        return self.make_api_request(
+    ) -> "_structs.MaybeAPIResponse[_schema.Message]":
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
             f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",
-            create_namespace=create_namespace,
             method=_constants.RequestMethod.POST,
-            **kwargs,
+            success_schema=_schema.Message,
+            error_schema=_schema.Errors,
         )
 
 

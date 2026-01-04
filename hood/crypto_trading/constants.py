@@ -19,8 +19,4 @@ class RequestMethod(IntEnum):
         return self.name
 
 
-class Object:
-    pass
-
-
-__all__ = ["RequestMethod", "Object"]
+__all__ = ["RequestMethod"]
