@@ -73,7 +73,7 @@ class StopLossOrderConfig:
 class StopLimitOrderConfig:
     quote_amount: Optional[Decimal] = None
     asset_quantity: Optional[Decimal] = None
-    limit_price: Optional[str] = None
+    limit_price: Optional[Decimal] = None
     stop_price: Optional[Decimal] = None
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
