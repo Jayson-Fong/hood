@@ -55,12 +55,12 @@ advice.
   - [X] Market Data
     - [X] Get Best Price
     - [X] Get Estimated Price
-  - [ ] Trading
-    - [ ] Get Crypto Trading Pairs
-    - [ ] Get Crypto Holdings
-    - [ ] Get Crypto Orders
-    - [ ] Place New Crypto Order
-    - [ ] Cancel Open Crypto Order
+  - [X] Trading
+    - [X] Get Crypto Trading Pairs
+    - [X] Get Crypto Holdings
+    - [X] Get Crypto Orders
+    - [X] Place New Crypto Order
+    - [X] Cancel Open Crypto Order
 - [ ] Command-Line Utilities
   - [ ] Key Generation
   - [ ] View Account Details
