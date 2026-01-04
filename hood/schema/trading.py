@@ -3,6 +3,10 @@ from decimal import Decimal
 from typing import Literal, List, Optional
 
 
+from . import Errors, Message
+
+
+# pylint: disable=too-many-instance-attributes
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TradingPair:
     asset_code: Optional[str] = None
@@ -74,6 +78,7 @@ class StopLimitOrderConfig:
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Order:
     id: Optional[str] = None
@@ -104,6 +109,8 @@ class OrderResults:
 
 
 __all__ = [
+    "Errors",
+    "Message",
     "TradingPair",
     "TradingPairResults",
     "Holding",

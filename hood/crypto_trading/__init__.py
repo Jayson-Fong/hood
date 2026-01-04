@@ -1,7 +1,7 @@
 import dataclasses
 import json
 import urllib.parse
-from typing import Dict, Optional, Type, Tuple, TypeVar, Union
+from typing import Dict, Optional, Type, Tuple, TypeVar, Union, TYPE_CHECKING
 
 import requests
 
@@ -15,19 +15,21 @@ from . import (
     parse as _parse,
 )
 
-from .. import schema as _schema
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance  # noqa
 
 
-T = TypeVar("T", bound=Type)
-K = TypeVar("K", bound=Type)
+_T = TypeVar("_T", bound="DataclassInstance")
+_U = TypeVar("_U", bound="DataclassInstance")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class CryptoTradingClient(
     _endpoint.AccountsMixin, _endpoint.MarketMixin, _endpoint.TradingMixin
 ):
 
     credential: auth.Credential
+    timeout: float = 10.0
     base_url: str = _constants.ROBINHOOD_BASE_URL
 
     def get_authorization_header(
@@ -49,11 +51,11 @@ class CryptoTradingClient(
     def make_api_request(
         self,
         path: str,
+        *,
         body: str = "",
         method: _constants.RequestMethod = _constants.RequestMethod.GET,
         headers: Optional[Dict[str, str]] = None,
         params: Optional["_structs.QueryParams"] = None,
-        timeout: float = 10.0,
     ) -> Tuple[Optional[requests.Response], Optional[BaseException]]:
         request_target = _util.inject_qs(path, params)
         request_headers = self.get_authorization_header(request_target, body, method)
@@ -69,21 +71,24 @@ class CryptoTradingClient(
                         url,
                         headers=request_headers,
                         json=json.loads(body),
-                        timeout=timeout,
+                        timeout=self.timeout,
                     ),
                     None,
                 )
-            else:
-                return method.send(url, headers=request_headers, timeout=timeout), None
+
+            return (
+                method.send(url, headers=request_headers, timeout=self.timeout),
+                None,
+            )
         except requests.RequestException as err:
             return None, err
 
     @staticmethod
     def parse_response(
         result: Tuple[Optional[requests.Response], Optional[BaseException]],
-        success: Optional[Type] = None,
-        error: Optional[Type] = _schema.Errors,
-    ) -> _structs.APIResponse:
+        success_schema: Optional[Type[_T]] = None,
+        error_schema: Optional[Type[_U]] = None,
+    ) -> _structs.APIResponse[Union[_T, _U]]:
         response, exc = result
         if response is None:
             return _structs.APIResponse(error=exc)
@@ -92,27 +97,31 @@ class CryptoTradingClient(
         if 400 <= response.status_code < 600:
             return _structs.APIResponse(
                 response=response,
-                data=_parse.parse_response(response, error),
+                data=_parse.parse_response(response, error_schema),
                 error=exc,
             )
 
         return _structs.APIResponse(
-            response=response, data=_parse.parse_response(response, success), error=exc
+            response=response,
+            data=_parse.parse_response(response, success_schema),
+            error=exc,
         )
 
     # pylint: disable=too-many-arguments,too-many-positional-arguments
     def make_parsed_api_request(
         self,
         path: str,
+        *,
         body: str = "",
         method: _constants.RequestMethod = _constants.RequestMethod.GET,
         headers: Optional[Dict[str, str]] = None,
         params: Optional["_structs.QueryParams"] = None,
-        timeout: float = 10.0,
-        success_schema: Optional[T] = None,
-        error_schema: Optional[K] = _schema.Errors,
-    ) -> _structs.APIResponse[Union[T, K]]:
-        result = self.make_api_request(path, body, method, headers, params, timeout)
+        success_schema: Optional[Type[_T]] = None,
+        error_schema: Optional[Type[_U]] = None,
+    ) -> _structs.APIResponse[Union[_T, _U]]:
+        result = self.make_api_request(
+            path, body=body, method=method, headers=headers, params=params
+        )
         return self.parse_response(result, success_schema, error_schema)
 
 

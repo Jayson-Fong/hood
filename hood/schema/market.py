@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Literal, List, Optional
 
+from . import Errors
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class BestBidAsk:
@@ -19,6 +21,7 @@ class BestBidAskResults:
     results: List[BestBidAsk] = field(default_factory=list)
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass(frozen=True, slots=True, kw_only=True)
 class MarketEstimate:
     symbol: Optional[str] = None
@@ -37,4 +40,4 @@ class MarketEstimateResults:
     results: List[MarketEstimate] = field(default_factory=list)
 
 
-__all__ = ["BestBidAskResults", "MarketEstimateResults"]
+__all__ = ["Errors", "BestBidAskResults", "MarketEstimateResults"]

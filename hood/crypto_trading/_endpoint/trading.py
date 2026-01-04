@@ -5,11 +5,10 @@ NOTICE: This module is not yet complete and may change without notice.
 import json
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING, Optional, Literal, Dict, Union, Unpack
+from typing import TYPE_CHECKING, Optional, Literal, Dict, Union
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
-from ... import schema as _base_schema
 from ...schema import trading as _schema
 
 if TYPE_CHECKING:
@@ -29,31 +28,32 @@ class TradingMixin(_Client):
     def trading_pairs(
         self,
         *symbols: str,
-        **kwargs: "Unpack[_structs.ClientOptions]",
-    ) -> "_structs.APIResponse[_schema.TradingPairResults]":
+    ) -> "_structs.MaybeAPIResponse[_schema.TradingPairResults]":
+        # noinspection PyTypeChecker
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/trading_pairs/",
             params={"symbol": list(symbols)},
             success_schema=_schema.TradingPairResults,
-            **kwargs,
+            error_schema=_schema.Errors,
         )
 
     def holdings(
         self,
         *asset_code: str,
-        **kwargs: "Unpack[_structs.ClientOptions]",
-    ) -> "_structs.APIResponse[_schema.HoldingResults]":
+    ) -> "_structs.MaybeAPIResponse[_schema.HoldingResults]":
+        # noinspection PyTypeChecker
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/holdings/",
             params={"asset_code": list(asset_code)},
             success_schema=_schema.HoldingResults,
-            **kwargs,
+            error_schema=_schema.Errors,
         )
 
     # noinspection PyShadowingBuiltins
     # pylint: disable=redefined-builtin,too-many-arguments,too-many-positional-arguments,too-many-locals
     def orders(
         self,
+        *,
         created_at_start: Optional[str] = None,
         created_at_end: Optional[str] = None,
         symbol: Optional[str] = None,
@@ -67,10 +67,9 @@ class TradingMixin(_Client):
         updated_at_end: Optional[str] = None,
         cursor: Optional[str] = None,
         limit: Optional[int] = None,
-        **kwargs: "Unpack[_structs.ClientOptions]",
-    ) -> "_structs.APIResponse[_schema.OrderResults]":
+    ) -> "_structs.MaybeAPIResponse[_schema.OrderResults]":
         # Create our parameters
-        params = {}
+        params: "_structs.QueryParams" = {}
 
         # fmt: off
         for param_name, param_value in (
@@ -83,11 +82,12 @@ class TradingMixin(_Client):
             if param_value is not None:
                 params[param_name] = param_value
 
+        # noinspection PyTypeChecker
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/orders/",
             params=params,
             success_schema=_schema.OrderResults,
-            **kwargs,
+            error_schema=_schema.Errors,
         )
 
     # noinspection PyShadowingBuiltins
@@ -95,6 +95,7 @@ class TradingMixin(_Client):
     def order(
         self,
         symbol: str,
+        *,
         side: Literal["buy", "sell"],
         type: Literal["limit", "market", "stop_limit", "stop_loss"],
         asset_quantity: Optional[float] = None,
@@ -103,8 +104,7 @@ class TradingMixin(_Client):
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,
         time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None,
-        **kwargs: "Unpack[_structs.ClientOptions]",
-    ) -> "_structs.APIResponse[_schema.Order]":
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]":
         if type not in ORDER_REQUIREMENTS:
             raise ValueError(f"Unknown order type {type}")
 
@@ -137,8 +137,9 @@ class TradingMixin(_Client):
 
             order_config[payload_key] = payload_value
 
+        # noinspection PyTypeChecker
         return self.make_parsed_api_request(
-            f"api/v1/crypto/trading/orders/",
+            "api/v1/crypto/trading/orders/",
             body=json.dumps(
                 {
                     "symbol": symbol,
@@ -149,8 +150,8 @@ class TradingMixin(_Client):
                 }
             ),
             success_schema=_schema.Order,
+            error_schema=_schema.Errors,
             method=_constants.RequestMethod.POST,
-            **kwargs,
         )
 
     # noinspection PyShadowingBuiltins
@@ -158,12 +159,13 @@ class TradingMixin(_Client):
     def cancel(
         self,
         id: str,
-        **kwargs: "Unpack[_structs.ClientOptions]",
-    ) -> "_structs.APIResponse[_base_schema.Message]":
-        return self.make_api_request(
+    ) -> "_structs.MaybeAPIResponse[_schema.Message]":
+        # noinspection PyTypeChecker
+        return self.make_parsed_api_request(
             f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",
             method=_constants.RequestMethod.POST,
-            **kwargs,
+            success_schema=_schema.Message,
+            error_schema=_schema.Errors,
         )
 
 

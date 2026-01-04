@@ -11,10 +11,10 @@ def get_current_timestamp() -> int:
     return int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-def dict_to_namespace(d) -> Union[SimpleNamespace, List, T]:
+def dict_to_namespace(d: _T) -> Union[SimpleNamespace, List, _T]:
     if isinstance(d, dict):
         return SimpleNamespace(**{k: dict_to_namespace(v) for k, v in d.items()})
 

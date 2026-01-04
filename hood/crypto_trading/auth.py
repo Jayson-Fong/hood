@@ -8,7 +8,7 @@ import nacl.signing
 from . import constants as _constants
 
 
-@dataclass
+@dataclass(slots=True)
 class Credential:
 
     api_key: str = field(repr=False)

@@ -7,11 +7,11 @@ from typing import (
     TypeVar,
     TYPE_CHECKING,
     Optional,
-    TypedDict,
 )
 
 if TYPE_CHECKING:
     import requests
+    from .. import schema as _schema  # noqa
 
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
@@ -26,9 +26,7 @@ class APIResponse(Generic[T]):
     error: Optional[BaseException] = None
 
 
-class ClientOptions(TypedDict):
-    headers: Optional[Dict[str, str]]
-    timeout: float
+MaybeAPIResponse = APIResponse[Union[T, "_schema.Errors"]]
 
 
-__all__ = ["QueryParams", "APIResponse"]
+__all__ = ["QueryParams", "APIResponse", "MaybeAPIResponse"]
