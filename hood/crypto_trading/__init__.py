@@ -1,7 +1,7 @@
 import dataclasses
 import json
 import urllib.parse
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Dict, Optional, Type, Tuple
 
 import requests
 
@@ -11,10 +11,10 @@ from . import (
     constants as _constants,
     util as _util,
     _endpoint,
+    structures as _structs,
 )
 
-if TYPE_CHECKING:
-    from . import structures as _structs
+from .. import schema as _schema
 
 
 @dataclasses.dataclass
@@ -47,10 +47,9 @@ class CryptoTradingClient(
         body: str = "",
         method: _constants.RequestMethod = _constants.RequestMethod.GET,
         headers: Optional[Dict[str, str]] = None,
-        raise_for_status: bool = True,
         params: Optional["_structs.QueryParams"] = None,
-        **kwargs,
-    ) -> "_structs.APIResponse[requests.Response]":
+        timeout: float = 10.0,
+    ) -> Tuple[Optional[requests.Response], Optional[BaseException]]:
         request_target = _util.inject_qs(path, params)
         request_headers = self.get_authorization_header(request_target, body, method)
         if headers:
@@ -60,42 +59,38 @@ class CryptoTradingClient(
 
         try:
             if body:
-                response = method.send(
-                    url, headers=request_headers, json=json.loads(body), **kwargs
-                )
+                return method.send(
+                    url, headers=request_headers, json=json.loads(body), timeout=timeout
+                ), None
             else:
-                response = method.send(url, headers=request_headers, **kwargs)
-
-            if raise_for_status:
-                response.raise_for_status()
+                return method.send(url, headers=request_headers, timeout=timeout), None
         except requests.RequestException as err:
             return None, err
 
-        return response, None
-
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
-    def make_json_api_request(
-        self,
-        path: str,
-        body: str = "",
-        method: _constants.RequestMethod = _constants.RequestMethod.GET,
-        headers: Optional[Dict[str, str]] = None,
-        raise_for_status: bool = True,
-        create_namespace: bool = False,
-        **kwargs,
-    ) -> "_structs.APIResponse":
-        response, err = self.make_api_request(
-            path, body, method, headers, raise_for_status, **kwargs
-        )
-
+    @staticmethod
+    def parse_response(
+        result: Tuple[Optional[requests.Response], Optional[BaseException]],
+        success: Optional[Type] = None,
+        error: Optional[Type] = _schema.Errors,
+    ) -> _structs.APIResponse:
+        response, exc = result
         if response is None:
-            return None, err
+            return _structs.APIResponse(error=exc)
 
-        json_response = response.json()
-        if create_namespace:
-            return _util.dict_to_namespace(json_response), err
+        # If the response code indicates an error, attempt parsing using the `error` schema.
+        if 400 <= response.status_code < 600:
+            if not error:
+                return _structs.APIResponse(response=response, error=exc)
 
-        return json_response, err
+            # TODO: Parse using schema
+            return _structs.APIResponse(error=exc)
+
+        if not success:
+            return _structs.APIResponse(response=response)
+
+        # Attempt parsing using the `success` schema.
+        # TODO: Parse using schema
+        return _structs.APIResponse(response=response)
 
 
 __all__ = ["CryptoTradingClient", "auth"]

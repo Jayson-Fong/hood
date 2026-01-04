@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 from typing import Literal, List, Optional
 
 
-# pylint: disable=too-few-public-methods
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class BestBidAsk:
     symbol: Optional[str] = None
     price: Optional[float] = None
@@ -14,12 +13,12 @@ class BestBidAsk:
     timestamp: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class BestBidAskResults:
     results: List[BestBidAsk] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MarketEstimate:
     symbol: Optional[str] = None
     side: Optional[Literal["bid", "ask"]] = None
@@ -32,7 +31,7 @@ class MarketEstimate:
     timestamp: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MarketEstimateResults:
     results: List[MarketEstimate] = field(default_factory=list)
 

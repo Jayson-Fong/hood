@@ -1,49 +1,20 @@
-from typing import TypeVar, Union, Tuple, Protocol, List, Dict, TypedDict, Optional
+from dataclasses import dataclass
+from typing import Union, List, Dict, Generic, TypeVar, TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    import requests
 
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
 
-# pylint: disable=too-few-public-methods
-class ErrorResponseEntryProtocol(Protocol):
-    detail: str
-    attr: str
-
-
-class ErrorResponseEntryDict(TypedDict):
-    detail: str
-    attr: str
-
-
-# pylint: disable=too-few-public-methods
-class ErrorResponseProtocol(Protocol):
-    type: str
-    errors: List[ErrorResponseEntryProtocol]
-
-
-class ErrorResponseDict(TypedDict):
-    type: str
-    errors: List[ErrorResponseEntryDict]
-
-
 T = TypeVar("T")
 
-# This would be more accurately expressed as: `Union[Tuple[T], None], Tuple[None, Exception]`
-# However, it seems some IDEs won't type hint properly in this case. Hence, `Optional` is
-# leveraged. This type hint is not exact as it implies we could get both a response and an
-# exception or not have either, which should not occur.
-APIResponse = Tuple[Optional[T], Optional[Exception]]
-MaybeAPIResponseProtocol = APIResponse[Union[T, ErrorResponseProtocol]]
-MaybeAPIResponseDict = APIResponse[Union[T, ErrorResponseDict]]
 
-# This may seem a bit redundant compared to:
-#   `Union[MaybeAPIResponseProtocol[T], MaybeAPIResponseDict[T]]`
-# However, it is defined in this manner to help type hinting within IDEs.
-MaybeAPIResponse = APIResponse[
-    Union[T, Union[ErrorResponseProtocol, ErrorResponseDict]]
-]
+@dataclass(frozen=True, slots=True, kw_only=True)
+class APIResponse(Generic[T]):
+    data: Optional[T] = None
+    response: Optional["requests.Response"] = None
+    error: Optional[BaseException] = None
 
-__all__ = [
-    "APIResponse",
-    "MaybeAPIResponseProtocol",
-    "MaybeAPIResponseDict",
-]
+
+__all__ = ["QueryParams", "APIResponse"]

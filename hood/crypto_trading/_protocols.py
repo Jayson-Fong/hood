@@ -3,7 +3,6 @@ from typing import Protocol, Dict, Optional, TYPE_CHECKING
 from . import constants as _constants
 
 if TYPE_CHECKING:
-    import requests
     from . import auth as _auth, structures as _structs
 
 
@@ -26,21 +25,8 @@ class Client(Protocol):
         body: str = "",
         method: _constants.RequestMethod = _constants.RequestMethod.GET,
         headers: Optional[Dict[str, str]] = None,
-        raise_for_status: bool = True,
         params: Optional["_structs.QueryParams"] = None,
-        **kwargs,
-    ) -> "_structs.APIResponse[requests.Response]": ...
-
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
-    def make_json_api_request(
-        self,
-        path: str,
-        body: str = "",
-        method: _constants.RequestMethod = _constants.RequestMethod.GET,
-        headers: Optional[Dict[str, str]] = None,
-        raise_for_status: bool = True,
-        create_namespace: bool = False,
-        **kwargs,
+        timeout: float = 10.0,
     ) -> "_structs.APIResponse": ...
 
 

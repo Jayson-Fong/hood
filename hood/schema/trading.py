@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 from typing import Literal, List, Optional
 
 
-# pylint: disable=too-few-public-methods
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class TradingPair:
     asset_code: Optional[str] = None
     quote_code: Optional[str] = None
@@ -16,14 +15,14 @@ class TradingPair:
     symbol: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class TradingPairResults:
     next: Optional[str] = None
     previous: Optional[str] = None
     results: List[TradingPair] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Holding:
     account_number: Optional[str] = None
     asset_code: Optional[str] = None
@@ -31,33 +30,33 @@ class Holding:
     quantity_available_for_trading: Optional[float] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class HoldingResults:
     next: Optional[str] = None
     previous: Optional[str] = None
     results: List[Holding] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class OrderExecution:
     effective_price: Optional[str] = None
     quantity: Optional[str] = None
     timestamp: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MarketOrderConfig:
     asset_quantity: Optional[float] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class LimitOrderConfig:
     quote_amount: Optional[float] = None
     asset_quantity: Optional[float] = None
     limit_price: Optional[float] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class StopLossOrderConfig:
     quote_amount: Optional[float] = None
     asset_quantity: Optional[float] = None
@@ -65,7 +64,7 @@ class StopLossOrderConfig:
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class StopLimitOrderConfig:
     quote_amount: Optional[float] = None
     asset_quantity: Optional[float] = None
@@ -74,7 +73,7 @@ class StopLimitOrderConfig:
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Order:
     id: Optional[str] = None
     account_number: Optional[str] = None
@@ -96,7 +95,7 @@ class Order:
     stop_limit_order_config: Optional[StopLimitOrderConfig] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class OrderResults:
     next: Optional[str] = None
     previous: Optional[str] = None
