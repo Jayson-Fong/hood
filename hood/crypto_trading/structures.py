@@ -10,6 +10,9 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    # noinspection PyUnresolvedReferences
+    from _typeshed import DataclassInstance
+
     import requests
     # noinspection PyUnresolvedReferences
     from .. import schema as _schema
@@ -17,7 +20,7 @@ if TYPE_CHECKING:
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound="DataclassInstance")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
