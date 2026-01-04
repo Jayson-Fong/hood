@@ -25,28 +25,50 @@ ORDER_REQUIREMENTS = {
 
 class TradingMixin(_Client):
 
-    # TODO: Add limit, cursor
     def trading_pairs(
         self,
         *symbols: str,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
     ) -> "_structs.MaybeAPIResponse[_schema.TradingPairResults]":
+        params: "_structs.QueryParams" = {"symbol": list(symbols)}
+
+        # fmt: off
+        for param_name, param_value in (
+            ("limit", limit), ("cursor", cursor),
+        ):
+            # fmt: on
+            if param_value is not None:
+                params[param_name] = param_value
+
         # noinspection PyTypeChecker
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/trading_pairs/",
-            params={"symbol": list(symbols)},
+            params=params,
             success_schema=_schema.TradingPairResults,
             error_schema=_schema.Errors,
         )
 
-    # TODO: Add limit, cursor
     def holdings(
         self,
         *asset_code: str,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
     ) -> "_structs.MaybeAPIResponse[_schema.HoldingResults]":
+        params: "_structs.QueryParams" = {"asset_code": list(asset_code)}
+
+        # fmt: off
+        for param_name, param_value in (
+            ("limit", limit), ("cursor", cursor),
+        ):
+            # fmt: on
+            if param_value is not None:
+                params[param_name] = param_value
+
         # noinspection PyTypeChecker
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/holdings/",
-            params={"asset_code": list(asset_code)},
+            params=params,
             success_schema=_schema.HoldingResults,
             error_schema=_schema.Errors,
         )
