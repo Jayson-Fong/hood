@@ -1,4 +1,5 @@
 import base64
+import logging
 from dataclasses import dataclass, InitVar, field
 from typing import Union
 
@@ -6,6 +7,9 @@ import nacl.signing
 
 
 from . import constants as _constants
+
+
+_logger = logging.getLogger(__package__)
 
 
 @dataclass(slots=True)
@@ -21,6 +25,12 @@ class Credential:
         if not path.startswith("/"):
             path = f"/{path}"
 
+        _logger.debug(
+            "Signing request: Timestamp %s - Path %s - Method %s",
+            timestamp,
+            path,
+            method.name,
+        )
         message = f"{self.api_key}{timestamp}{path}{method.name}{body}"
         signed_message = self.private_key.sign(message.encode("utf-8"))
 

@@ -1,5 +1,6 @@
 import dataclasses
 import json
+import logging
 import urllib.parse
 from typing import Dict, Optional, Type, Tuple, TypeVar, Union, TYPE_CHECKING
 
@@ -22,6 +23,8 @@ if TYPE_CHECKING:
 _T = TypeVar("_T", bound="DataclassInstance")
 _U = TypeVar("_U", bound="DataclassInstance")
 
+_logger = logging.getLogger(__package__)
+
 
 @dataclasses.dataclass(slots=True)
 class CryptoTradingClient(
@@ -39,8 +42,10 @@ class CryptoTradingClient(
         method: _constants.RequestMethod,
     ) -> Dict[str, str]:
         timestamp = _util.get_current_timestamp()
-        signature = self.credential.sign_message(path, body, timestamp, method)
+        _logger.debug("Signing request with timestamp %s", timestamp)
 
+        signature = self.credential.sign_message(path, body, timestamp, method)
+        _logger.debug("Generated signature %s", signature)
         return {
             "x-api-key": self.credential.api_key,
             "x-signature": signature,
@@ -95,6 +100,12 @@ class CryptoTradingClient(
 
         # If the response code indicates an error, attempt parsing using the `error` schema.
         if 400 <= response.status_code < 600:
+            _logger.error(
+                "Received error response: %d - %s",
+                response.status_code,
+                response.request.url,
+            )
+
             return _structs.APIResponse(
                 response=response,
                 data=_parse.parse_response(response, error_schema),
