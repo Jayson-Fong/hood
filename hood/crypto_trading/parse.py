@@ -85,9 +85,9 @@ def dataclass_pack(json_data: Any, schema: Type[_T]) -> Optional[_T]:
 
             prepared_data[field.name] = json_data[field.name]
 
-        _logger.warning("Data cannot be packed")
         return schema(**prepared_data)
 
+    _logger.warning("Data cannot be packed")
     return None
 
 
