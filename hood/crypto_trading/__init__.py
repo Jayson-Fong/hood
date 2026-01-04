@@ -1,7 +1,7 @@
 import dataclasses
 import json
 import urllib.parse
-from typing import Dict, Optional, Type, Tuple
+from typing import Dict, Optional, Type, Tuple, TypeVar, Union
 
 import requests
 
@@ -12,9 +12,14 @@ from . import (
     util as _util,
     _endpoint,
     structures as _structs,
+    parse as _parse,
 )
 
 from .. import schema as _schema
+
+
+T = TypeVar("T", bound=Type)
+K = TypeVar("K", bound=Type)
 
 
 @dataclasses.dataclass
@@ -79,18 +84,24 @@ class CryptoTradingClient(
 
         # If the response code indicates an error, attempt parsing using the `error` schema.
         if 400 <= response.status_code < 600:
-            if not error:
-                return _structs.APIResponse(response=response, error=exc)
+            return _structs.APIResponse(response=response, data=_parse.parse_response(response, error), error=exc)
 
-            # TODO: Parse using schema
-            return _structs.APIResponse(error=exc)
+        return _structs.APIResponse(response=response, data=_parse.parse_response(response, success), error=exc)
 
-        if not success:
-            return _structs.APIResponse(response=response)
-
-        # Attempt parsing using the `success` schema.
-        # TODO: Parse using schema
-        return _structs.APIResponse(response=response)
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def make_parsed_api_request(
+        self,
+        path: str,
+        body: str = "",
+        method: _constants.RequestMethod = _constants.RequestMethod.GET,
+        headers: Optional[Dict[str, str]] = None,
+        params: Optional["_structs.QueryParams"] = None,
+        timeout: float = 10.0,
+        success_schema: Optional[T] = None,
+        error_schema: Optional[K] = _schema.Errors,
+    ) -> _structs.APIResponse[Union[T, K]]:
+        result = self.make_api_request(path, body, method, headers, params, timeout)
+        return self.parse_response(result, success_schema, error_schema)
 
 
 __all__ = ["CryptoTradingClient", "auth"]
