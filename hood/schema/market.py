@@ -1,15 +1,16 @@
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Literal, List, Optional
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class BestBidAsk:
     symbol: Optional[str] = None
-    price: Optional[float] = None
-    bid_inclusive_of_sell_spread: Optional[float] = None
-    sell_spread: Optional[float] = None
-    ask_inclusive_of_buy_spread: Optional[float] = None
-    buy_spread: Optional[float] = None
+    price: Optional[Decimal] = None
+    bid_inclusive_of_sell_spread: Optional[Decimal] = None
+    sell_spread: Optional[Decimal] = None
+    ask_inclusive_of_buy_spread: Optional[Decimal] = None
+    buy_spread: Optional[Decimal] = None
     timestamp: Optional[str] = None
 
 
@@ -22,12 +23,12 @@ class BestBidAskResults:
 class MarketEstimate:
     symbol: Optional[str] = None
     side: Optional[Literal["bid", "ask"]] = None
-    price: Optional[float] = None
-    quantity: Optional[float] = None
-    bid_inclusive_of_sell_spread: Optional[float] = None
-    sell_spread: Optional[float] = None
-    ask_inclusive_of_buy_spread: Optional[float] = None
-    buy_spread: Optional[float] = None
+    price: Optional[Decimal] = None
+    quantity: Optional[Decimal] = None
+    bid_inclusive_of_sell_spread: Optional[Decimal] = None
+    sell_spread: Optional[Decimal] = None
+    ask_inclusive_of_buy_spread: Optional[Decimal] = None
+    buy_spread: Optional[Decimal] = None
     timestamp: Optional[str] = None
 
 

@@ -1,4 +1,5 @@
 import dataclasses
+import decimal
 from dataclasses import fields
 from typing import Type, Optional, get_args, get_origin, Union
 
@@ -26,19 +27,22 @@ def dataclass_pack(json_data, schema):
 
             if origin is list:
                 prepared_data[field.name] = [
-                    dataclass_pack(entry, get_args(field_type)[0]) for entry in json_data[field.name]
+                    dataclass_pack(entry, get_args(field_type)[0])
+                    for entry in json_data[field.name]
                 ]
                 continue
 
             if dataclasses.is_dataclass(field_type):
-                prepared_data[field.name] = dataclass_pack(json_data[field.name], field_type)
+                prepared_data[field.name] = dataclass_pack(
+                    json_data[field.name], field_type
+                )
                 continue
 
-            if field_type in (int, float):
+            if field_type in (int, decimal.Decimal):
                 try:
                     prepared_data[field.name] = field_type(json_data[field.name])
                     continue
-                except (ValueError, TypeError):
+                except (ValueError, TypeError, decimal.InvalidOperation):
                     pass
 
             prepared_data[field.name] = json_data[field.name]

@@ -64,9 +64,15 @@ class CryptoTradingClient(
 
         try:
             if body:
-                return method.send(
-                    url, headers=request_headers, json=json.loads(body), timeout=timeout
-                ), None
+                return (
+                    method.send(
+                        url,
+                        headers=request_headers,
+                        json=json.loads(body),
+                        timeout=timeout,
+                    ),
+                    None,
+                )
             else:
                 return method.send(url, headers=request_headers, timeout=timeout), None
         except requests.RequestException as err:
@@ -84,9 +90,15 @@ class CryptoTradingClient(
 
         # If the response code indicates an error, attempt parsing using the `error` schema.
         if 400 <= response.status_code < 600:
-            return _structs.APIResponse(response=response, data=_parse.parse_response(response, error), error=exc)
+            return _structs.APIResponse(
+                response=response,
+                data=_parse.parse_response(response, error),
+                error=exc,
+            )
 
-        return _structs.APIResponse(response=response, data=_parse.parse_response(response, success), error=exc)
+        return _structs.APIResponse(
+            response=response, data=_parse.parse_response(response, success), error=exc
+        )
 
     # pylint: disable=too-many-arguments,too-many-positional-arguments
     def make_parsed_api_request(

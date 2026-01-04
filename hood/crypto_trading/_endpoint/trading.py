@@ -5,7 +5,7 @@ NOTICE: This module is not yet complete and may change without notice.
 import json
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING, Optional, Literal, Dict, Union
+from typing import TYPE_CHECKING, Optional, Literal, Dict, Union, Unpack
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
@@ -29,7 +29,7 @@ class TradingMixin(_Client):
     def trading_pairs(
         self,
         *symbols: str,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.TradingPairResults]":
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/trading_pairs/",
@@ -41,7 +41,7 @@ class TradingMixin(_Client):
     def holdings(
         self,
         *asset_code: str,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.HoldingResults]":
         return self.make_parsed_api_request(
             "api/v1/crypto/trading/holdings/",
@@ -67,7 +67,7 @@ class TradingMixin(_Client):
         updated_at_end: Optional[str] = None,
         cursor: Optional[str] = None,
         limit: Optional[int] = None,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.OrderResults]":
         # Create our parameters
         params = {}
@@ -103,7 +103,7 @@ class TradingMixin(_Client):
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,
         time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.Order]":
         if type not in ORDER_REQUIREMENTS:
             raise ValueError(f"Unknown order type {type}")
@@ -158,7 +158,7 @@ class TradingMixin(_Client):
     def cancel(
         self,
         id: str,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_base_schema.Message]":
         return self.make_api_request(
             f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",

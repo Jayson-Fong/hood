@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Literal, List, Optional
 
 
@@ -26,8 +27,8 @@ class TradingPairResults:
 class Holding:
     account_number: Optional[str] = None
     asset_code: Optional[str] = None
-    total_quantity: Optional[float] = None
-    quantity_available_for_trading: Optional[float] = None
+    total_quantity: Optional[Decimal] = None
+    quantity_available_for_trading: Optional[Decimal] = None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -46,30 +47,30 @@ class OrderExecution:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class MarketOrderConfig:
-    asset_quantity: Optional[float] = None
+    asset_quantity: Optional[Decimal] = None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class LimitOrderConfig:
-    quote_amount: Optional[float] = None
-    asset_quantity: Optional[float] = None
-    limit_price: Optional[float] = None
+    quote_amount: Optional[Decimal] = None
+    asset_quantity: Optional[Decimal] = None
+    limit_price: Optional[Decimal] = None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class StopLossOrderConfig:
-    quote_amount: Optional[float] = None
-    asset_quantity: Optional[float] = None
-    stop_price: Optional[float] = None
+    quote_amount: Optional[Decimal] = None
+    asset_quantity: Optional[Decimal] = None
+    stop_price: Optional[Decimal] = None
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class StopLimitOrderConfig:
-    quote_amount: Optional[float] = None
-    asset_quantity: Optional[float] = None
+    quote_amount: Optional[Decimal] = None
+    asset_quantity: Optional[Decimal] = None
     limit_price: Optional[str] = None
-    stop_price: Optional[float] = None
+    stop_price: Optional[Decimal] = None
     time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None
 
 
@@ -85,8 +86,8 @@ class Order:
     state: Optional[
         Literal["open", "cancelled", "partially_filled", "filled", "failed"]
     ] = None
-    average_price: Optional[float] = None
-    filled_asset_quantity: Optional[float] = None
+    average_price: Optional[Decimal] = None
+    filled_asset_quantity: Optional[Decimal] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     market_order_config: Optional[MarketOrderConfig] = None

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Literal, Union
+from typing import Unpack
 
 from .._protocols import Client as _Client
 from ...schema import market as _schema
@@ -12,7 +13,7 @@ class MarketMixin(_Client):
     def best_bid_ask(
         self,
         *symbols: str,
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.BestBidAskResults]":
         return self.make_parsed_api_request(
             "api/v1/crypto/marketdata/best_bid_ask/",
@@ -26,7 +27,7 @@ class MarketMixin(_Client):
         symbol: str,
         side: Literal["bid", "ask", "both"],
         *quantity: Union[float, str, int],
-        **kwargs,
+        **kwargs: "Unpack[_structs.ClientOptions]",
     ) -> "_structs.APIResponse[_schema.MarketEstimateResults]":
         return self.make_parsed_api_request(
             "api/v1/crypto/marketdata/estimated_price/",
