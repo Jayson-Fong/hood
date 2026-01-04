@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Optional, Literal, Dict, Union
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
+from ... import schema as _base_schema
+from ...schema import trading as _schema
 
 if TYPE_CHECKING:
     from .. import structures as _structs
@@ -27,26 +29,24 @@ class TradingMixin(_Client):
     def trading_pairs(
         self,
         *symbols: str,
-        create_namespace: bool = False,
         **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
-        return self.make_json_api_request(
+    ) -> "_structs.APIResponse[_schema.TradingPairResults]":
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/trading_pairs/",
             params={"symbol": list(symbols)},
-            create_namespace=create_namespace,
+            success_schema=_schema.TradingPairResults,
             **kwargs,
         )
 
     def holdings(
         self,
         *asset_code: str,
-        create_namespace: bool = False,
         **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
-        return self.make_json_api_request(
+    ) -> "_structs.APIResponse[_schema.HoldingResults]":
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/holdings/",
             params={"asset_code": list(asset_code)},
-            create_namespace=create_namespace,
+            success_schema=_schema.HoldingResults,
             **kwargs,
         )
 
@@ -67,9 +67,8 @@ class TradingMixin(_Client):
         updated_at_end: Optional[str] = None,
         cursor: Optional[str] = None,
         limit: Optional[int] = None,
-        create_namespace: bool = False,
         **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
+    ) -> "_structs.APIResponse[_schema.OrderResults]":
         # Create our parameters
         params = {}
 
@@ -84,10 +83,10 @@ class TradingMixin(_Client):
             if param_value is not None:
                 params[param_name] = param_value
 
-        return self.make_json_api_request(
+        return self.make_parsed_api_request(
             "api/v1/crypto/trading/orders/",
             params=params,
-            create_namespace=create_namespace,
+            success_schema=_schema.OrderResults,
             **kwargs,
         )
 
@@ -104,9 +103,8 @@ class TradingMixin(_Client):
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,
         time_in_force: Optional[Literal["gtc", "gfd", "gfw", "gfm"]] = None,
-        create_namespace: bool = False,
         **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
+    ) -> "_structs.APIResponse[_schema.Order]":
         if type not in ORDER_REQUIREMENTS:
             raise ValueError(f"Unknown order type {type}")
 
@@ -139,7 +137,7 @@ class TradingMixin(_Client):
 
             order_config[payload_key] = payload_value
 
-        return self.make_json_api_request(
+        return self.make_parsed_api_request(
             f"api/v1/crypto/trading/orders/",
             body=json.dumps(
                 {
@@ -150,7 +148,7 @@ class TradingMixin(_Client):
                     f"{type}_order_config": order_config,
                 }
             ),
-            create_namespace=create_namespace,
+            success_schema=_schema.Order,
             method=_constants.RequestMethod.POST,
             **kwargs,
         )
@@ -160,12 +158,10 @@ class TradingMixin(_Client):
     def cancel(
         self,
         id: str,
-        create_namespace: bool = False,
         **kwargs,
-    ) -> "_structs.MaybeAPIResponse":
+    ) -> "_structs.APIResponse[_base_schema.Message]":
         return self.make_api_request(
             f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",
-            # create_namespace=create_namespace,
             method=_constants.RequestMethod.POST,
             **kwargs,
         )
