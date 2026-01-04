@@ -5,7 +5,7 @@ NOTICE: This module is not yet complete and may change without notice.
 import json
 import urllib.parse
 import uuid
-from typing import TYPE_CHECKING, Optional, Literal, Dict, Union
+from typing import TYPE_CHECKING, Optional, Literal, Dict, Union, overload
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
@@ -25,6 +25,7 @@ ORDER_REQUIREMENTS = {
 
 class TradingMixin(_Client):
 
+    # TODO: Add limit, cursor
     def trading_pairs(
         self,
         *symbols: str,
@@ -37,6 +38,7 @@ class TradingMixin(_Client):
             error_schema=_schema.Errors,
         )
 
+    # TODO: Add limit, cursor
     def holdings(
         self,
         *asset_code: str,
@@ -89,6 +91,109 @@ class TradingMixin(_Client):
             success_schema=_schema.OrderResults,
             error_schema=_schema.Errors,
         )
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["limit"],
+        asset_quantity: float,
+        limit_price: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["limit"],
+        quote_amount: float,
+        limit_price: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["market"],
+        asset_quantity: float,
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_limit"],
+        asset_quantity: float,
+        limit_price: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_limit"],
+        quote_amount: float,
+        limit_price: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_loss"],
+        asset_quantity: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
+
+    # noinspection PyShadowingBuiltins
+    # pylint: disable=redefined-builtin
+    @overload
+    def order(
+        self,
+        symbol: str,
+        *,
+        side: Literal["buy", "sell"],
+        type: Literal["stop_loss"],
+        quote_amount: float,
+        stop_price: float,
+        time_in_force: Literal["gtc", "gfd", "gfw", "gfm"],
+        client_order_id: Optional[str] = None,
+    ) -> "_structs.MaybeAPIResponse[_schema.Order]": ...
 
     # noinspection PyShadowingBuiltins
     # pylint: disable=redefined-builtin
