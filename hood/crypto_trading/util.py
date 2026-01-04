@@ -1,6 +1,5 @@
 import datetime
-from types import SimpleNamespace
-from typing import Optional, Union, TypeVar, List, cast
+from typing import Optional, cast
 from urllib.parse import urlparse, urlencode, parse_qs
 
 from . import structures as _struct
