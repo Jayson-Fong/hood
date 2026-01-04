@@ -57,7 +57,7 @@ def dataclass_pack(json_data: Any, schema: Type[_T]) -> Optional[_T]:
 
             origin = get_origin(field_type)
 
-            if origin is list:
+            if origin is list and isinstance(json_data[field.name], list):
                 _logger.debug("Packing list entry for field: %s", field.name)
                 prepared_data[field.name] = [
                     dataclass_pack(entry, get_args(field_type)[0])

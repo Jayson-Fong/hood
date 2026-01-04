@@ -235,6 +235,9 @@ class TradingMixin(_Client):
         if type not in ORDER_REQUIREMENTS:
             raise ValueError(f"Unknown order type {type}")
 
+        if asset_quantity is not None and quote_amount is not None:
+            raise ValueError("Cannot specify both asset quantity and quote amount")
+
         order_config: Dict[str, Union[str, int, float]] = {}
         if asset_quantity is not None:
             order_config["asset_quantity"] = asset_quantity

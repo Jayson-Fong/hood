@@ -110,13 +110,11 @@ class CryptoTradingClient(
             return _structs.APIResponse(
                 response=response,
                 data=_parse.parse_response(response, error_schema),
-                error=exc,
             )
 
         return _structs.APIResponse(
             response=response,
             data=_parse.parse_response(response, success_schema),
-            error=exc,
         )
 
     # pylint: disable=too-many-arguments,too-many-positional-arguments

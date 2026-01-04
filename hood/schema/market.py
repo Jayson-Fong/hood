@@ -40,4 +40,4 @@ class MarketEstimateResults:
     results: List[MarketEstimate] = field(default_factory=list)
 
 
-__all__ = ["Errors", "BestBidAskResults", "MarketEstimateResults"]
+__all__ = ["BestBidAskResults", "Errors", "MarketEstimateResults"]

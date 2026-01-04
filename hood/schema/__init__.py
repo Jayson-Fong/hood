@@ -19,4 +19,4 @@ class Errors:
     errors: List[Error] = field(default_factory=list)
 
 
-__all__ = ["Message", "Error", "Errors"]
+__all__ = ["Error", "Errors", "Message"]
