@@ -366,7 +366,7 @@ hood.crypto_trading.structures.APIResponse(
 
 Fetch a list of trading pairs. Multiple symbols may be specified as additional arguments. You may pass an integer
 `limit` to limit the number of results in one page. If iterating through pages, a string `cursor` may be passed
-as a keyword argument.
+as a keyword argument. If no symbols are specified, all symbols will be returned.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
@@ -454,36 +454,78 @@ hood.crypto_trading.structures.APIResponse(
 <details>
 <summary>Get Crypto Holdings</summary>
 
+Details the holdings in your Crypto Trading account. Omit asset codes to list all holdings. Multiple asset codes may
+be passed as positional arguments, all uppercase. An integer `limit` keyword argument may be set to limit the number of
+results per page. If paging, the cursor may be passed in a `cursor` keyword argument.
+
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+# noinspection SpellCheckingInspection
+client.holdings("USDC")
 ```
 
 Expected output structure for response code `200`:
 
 ```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+# noinspection SpellCheckingInspection
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.HoldingResults(
+        next=None,
+        previous=None,
+        results=[
+            hood.crypto_trading.schema.trading.Holding(
+                account_number="000000000000",
+                asset_code="USDC", 
+                total_quantity=decimal.Decimal("1.000000000000000000"),
+                quantity_available_for_trading=decimal.Decimal("1.000000000000000000"),
+            ),
+        ],
+    ), 
+  response=requests.Response(),
+  error=None,
+)
 ```
 
 If paging, a `next` and `previous` URL may be provided in the form of a string.
 
-This endpoint may return an error response. For example, when providing an invalid symbol.
+This endpoint may return an error response. For example, when providing an invalid cursor.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.holdings(cursor="0")
 ```
 
 Expected output structure for response code `400` and `404`:
 
 ```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Errors(
+        type="client_error", 
+        errors=[
+            hood.crypto_trading.schema.trading.Error(
+                detail="Not found.",
+                attr=None
+            ),
+        ],
+    ),
+    response=requests.Response(), 
+    error=None,
+)
 ```
 
 </details>
@@ -554,7 +596,7 @@ client = CryptoTradingClient(credential)
 ...
 ```
 
-Expected output structure for response code `400` and `404`:
+Expected output structure for response code `400`:
 
 ```python
 
