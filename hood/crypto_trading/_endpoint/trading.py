@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Optional, Literal, Dict, Union, overload
 
 from .. import constants as _constants
 from .._protocols import Client as _Client
-from ...schema import trading as _schema
+from ..schema import trading as _schema
 
 if TYPE_CHECKING:
     from .. import structures as _structs

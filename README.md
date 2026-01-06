@@ -70,7 +70,7 @@ print("Public Key (Base64):", public_key_base64, sep="\n\t")
 
 This will output in the following format:
 
-```text
+```
 Private Key (Base64):
         AmkImtzGG3lW5BKXhqvJTxvFfL3gFqrRsOI9U/6d6CA=
 Public Key (Base64):
@@ -117,7 +117,7 @@ import base64
 private_key_seed = base64.b64decode("BASE64_PRIVATE_KEY_HERE")
 ```
 
-When using `hood`'s dedicated methods to make requests against Robinhood's Crypto Trading API, the function caller
+When using `hood`"s dedicated methods to make requests against Robinhood"s Crypto Trading API, the function caller
 will receive an instance of `hood.structures.APIResponse`, containing the following attributes:
 
 - data (`None` or Dataclass Instance): Parsed response data.
@@ -129,6 +129,8 @@ will receive an instance of `hood.structures.APIResponse`, containing the follow
 <details>
 <summary>Get Crypto Trading Account Details</summary>
 
+Get the Robinhood Crypto Trading account details associated with the authenticated user.
+
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
@@ -137,15 +139,22 @@ client = CryptoTradingClient(credential)
 client.accounts()
 ```
 
-```text
+Expected output structure for response code `200`:
+
+```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.account
+
 hood.crypto_trading.structures.APIResponse(
-    data=hood.crypto_trading.account.TradingAccountDetail(
-        account_number='000000000000',
-        status='active',
-        buying_power=decimal.Decimal('000.0000'),
-        buying_power_currency='USD'
-    ), 
-    response=<requests.Response [200]>,
+    data=hood.crypto_trading.schema.account.TradingAccountDetail(
+        account_number="000000000000",
+        status="active",
+        buying_power=decimal.Decimal("000.0000"),
+        buying_power_currency="USD",
+    ),
+    response=requests.Response(),
     error=None
 )
 ```
@@ -158,6 +167,8 @@ hood.crypto_trading.structures.APIResponse(
 <details>
 <summary>Get Best Price</summary>
 
+Fetch a single `bid` and `ask` price for each symbol specified. Multiple symbols may be specified as additional arguments.
+
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
@@ -166,32 +177,71 @@ client = CryptoTradingClient(credential)
 client.best_bid_ask("BTC-USD", "ETH-USD")
 ```
 
-```text
+Expected output structure for response code `200`:
+
+```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.market
+
 hood.crypto_trading.structures.APIResponse(
-    data=hood.crypto_trading.market.BestBidAskResults(
+    data=hood.crypto_trading.schema.market.BestBidAskResults(
         results=[
-            hood.crypto_trading.market.BestBidAsk(
-                symbol='BTC-USD',
-                price=decimal.Decimal('94200.49475077'),
-                bid_inclusive_of_sell_spread=decimal.Decimal('93401.43950154'),
-                sell_spread=decimal.Decimal('0.0084825'),
-                ask_inclusive_of_buy_spread=decimal.Decimal('94999.55'),
-                buy_spread=decimal.Decimal('0.0084825'),
-                timestamp='2026-01-05T21:04:16.35583523Z'
+            hood.crypto_trading.schema.market.BestBidAsk(
+                symbol="BTC-USD",
+                price=decimal.Decimal("94200.49475077"),
+                bid_inclusive_of_sell_spread=decimal.Decimal("93401.43950154"),
+                sell_spread=decimal.Decimal("0.0084825"),
+                ask_inclusive_of_buy_spread=decimal.Decimal("94999.55"),
+                buy_spread=decimal.Decimal("0.0084825"),
+                timestamp="2026-01-05T21:04:16.35583523Z",
             ),
-            hood.crypto_trading.market.BestBidAsk(
-                symbol='ETH-USD',
-                price=decimal.Decimal('3247.68922388'),
-                bid_inclusive_of_sell_spread=decimal.Decimal('3220.746636'),
-                sell_spread=decimal.Decimal('0.00829593'),
-                ask_inclusive_of_buy_spread=decimal.Decimal('3274.63181176'),
-                buy_spread=decimal.Decimal('0.00829593'),
-                timestamp='2026-01-05T21:04:16.355835525Z'
-            )
-        ]
+            hood.crypto_trading.schema.market.BestBidAsk(
+                symbol="ETH-USD",
+                price=decimal.Decimal("3247.68922388"),
+                bid_inclusive_of_sell_spread=decimal.Decimal("3220.746636"),
+                sell_spread=decimal.Decimal("0.00829593"),
+                ask_inclusive_of_buy_spread=decimal.Decimal("3274.63181176"),
+                buy_spread=decimal.Decimal("0.00829593"),
+                timestamp="2026-01-05T21:04:16.355835525Z",
+            ),
+        ],
     ),
-    response=<requests.Response [200]>,
-    error=None
+    response=requests.Response(),
+    error=None,
+)
+```
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+client.best_bid_ask("BTC-USD", "ETH-US")
+```
+
+Expected output structure for response code `400`:
+
+```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.market
+
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.market.Errors(
+    type="validation_error",
+    errors=[
+        hood.crypto_trading.schema.market.Error(
+            detail="Invalid symbol: ETH-US",
+            attr="symbol",
+      ),
+    ],
+  ),
+  response=requests.Response(), 
+  error=None,
 )
 ```
 
@@ -199,6 +249,11 @@ hood.crypto_trading.structures.APIResponse(
 
 <details>
 <summary>Get Estimated Price</summary>
+
+Requests the estimated price for a symbol. A single symbol is required, to be followed by the side. Valid sides are: 
+`bid`, `ask`, `both`. Quantities may be specified as additional arguments. The Robinhood Crypto Trading API accepts up
+to 10 quantities. The quantity may be passed as a float, string, integer, or `decimal.Decimal`. Quantities are converted
+to a string using `str(quantity)`.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
@@ -208,63 +263,341 @@ client = CryptoTradingClient(credential)
 client.estimated_price("BTC-USD", "both", 0.1, "1")
 ```
 
-```text
+Expected output structure for response code `200`:
+
+```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.market
+
 hood.crypto_trading.structures.APIResponse(
-    data=hood.crypto_trading.market.MarketEstimateResults(
+    data=hood.crypto_trading.schema.market.MarketEstimateResults(
         results=[
-            hood.crypto_trading.market.MarketEstimate(
-                symbol='BTC-USD',
-                side='bid',
-                price=decimal.Decimal('94110.38097125'),
-                quantity=decimal.Decimal('0.1'),
-                bid_inclusive_of_sell_spread=decimal.Decimal('93311.1019425'),
-                sell_spread=decimal.Decimal('0.008493'),
+            hood.crypto_trading.schema.market.MarketEstimate(
+                symbol="BTC-USD",
+                side="bid",
+                price=decimal.Decimal("94110.38097125"),
+                quantity=decimal.Decimal("0.1"),
+                bid_inclusive_of_sell_spread=decimal.Decimal("93311.1019425"),
+                sell_spread=decimal.Decimal("0.008493"),
                 ask_inclusive_of_buy_spread=None,
                 buy_spread=None,
-                timestamp='2026-01-05T16:08:10.270830931-05:00'
+                timestamp="2026-01-05T16:08:10.270830931-05:00",
             ),
-            hood.crypto_trading.market.MarketEstimate(
-                symbol='BTC-USD',
-                side='ask',
-                price=decimal.Decimal('94110.38097125'),
-                quantity=decimal.Decimal('0.1'),
+            hood.crypto_trading.schema.market.MarketEstimate(
+                symbol="BTC-USD",
+                side="ask",
+                price=decimal.Decimal("94110.38097125"),
+                quantity=decimal.Decimal("0.1"),
                 bid_inclusive_of_sell_spread=None,
                 sell_spread=None,
-                ask_inclusive_of_buy_spread=decimal.Decimal('94909.66'),
-                buy_spread=decimal.Decimal('0.008493'),
-                timestamp='2026-01-05T16:08:10.270830931-05:00'
+                ask_inclusive_of_buy_spread=decimal.Decimal("94909.66"),
+                buy_spread=decimal.Decimal("0.008493"),
+                timestamp="2026-01-05T16:08:10.270830931-05:00",
             ),
-            hood.crypto_trading.market.MarketEstimate(
-                symbol='BTC-USD',
-                side='bid',
-                price=decimal.Decimal('94109.17804723'),
-                quantity=decimal.Decimal('1'),
-                bid_inclusive_of_sell_spread=decimal.Decimal('93307.82609446'),
-                sell_spread=decimal.Decimal('0.00851513'),
+            hood.crypto_trading.schema.market.MarketEstimate(
+                symbol="BTC-USD",
+                side="bid",
+                price=decimal.Decimal("94109.17804723"),
+                quantity=decimal.Decimal("1"),
+                bid_inclusive_of_sell_spread=decimal.Decimal("93307.82609446"),
+                sell_spread=decimal.Decimal("0.00851513"),
                 ask_inclusive_of_buy_spread=None,
                 buy_spread=None,
-                timestamp='2026-01-05T16:08:10.270830931-05:00'
+                timestamp="2026-01-05T16:08:10.270830931-05:00",
             ),
-            hood.crypto_trading.market.MarketEstimate(
-                symbol='BTC-USD',
-                side='ask',
-                price=decimal.Decimal('94109.17804723'),
-                quantity=decimal.Decimal('1'),
+            hood.crypto_trading.schema.market.MarketEstimate(
+                symbol="BTC-USD",
+                side="ask",
+                price=decimal.Decimal("94109.17804723"),
+                quantity=decimal.Decimal("1"),
                 bid_inclusive_of_sell_spread=None,
                 sell_spread=None,
-                ask_inclusive_of_buy_spread=decimal.Decimal('94910.53'),
-                buy_spread=decimal.Decimal('0.00851513'),
-                timestamp='2026-01-05T16:08:10.270830931-05:00'
-            )
+                ask_inclusive_of_buy_spread=decimal.Decimal("94910.53"),
+                buy_spread=decimal.Decimal("0.00851513"),
+                timestamp="2026-01-05T16:08:10.270830931-05:00",
+            ),
         ]
     ),
-    response=<requests.Response [200]>,
-    error=None
+    response=requests.Response(),
+    error=None,
+)
+```
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+client.estimated_price("BTC-USD", "both", 0.1, "1")
+```
+
+Expected output structure for response code `400`:
+
+```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.market
+
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.market.Errors(
+        type="server_error",
+        errors=[
+            hood.crypto_trading.schema.market.Error(
+                detail="Internal server error", 
+                attr=None,
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
 )
 ```
 
 </details>
 
+### Trading Endpoints
+
+<details>
+<summary>Get Crypto Trading Pairs</summary>
+
+Fetch a list of trading pairs. Multiple symbols may be specified as additional arguments. You may pass an integer
+`limit` to limit the number of results in one page. If iterating through pages, a string `cursor` may be passed
+as a keyword argument.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+client.client.trading_pairs("BTC-USD", "ETH-USD")
+```
+
+Expected output structure for response code `200`:
+
+```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
+
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.TradingPairResults(
+        next=None,
+        previous=None,
+        results=[
+            hood.crypto_trading.schema.trading.TradingPair(
+                asset_code="ETH", 
+                quote_code="USD", 
+                quote_increment="0.010000000000000000", 
+                asset_increment="0.000001000000000000", 
+                max_order_size="280.0000000000000000", 
+                min_order_size="0.000100000000000000", 
+                status="tradable", 
+                symbol="ETH-USD",
+            ),
+            hood.crypto_trading.schema.trading.TradingPair(
+              asset_code="BTC",
+              quote_code="USD",
+              quote_increment="0.010000000000000000",
+              asset_increment="0.000000010000000000",
+              max_order_size="20.0000000000000000",
+              min_order_size="0.000001000000000000",
+              status="tradable",
+              symbol="BTC-USD",
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
+)
+```
+
+If paging, a `next` and `previous` URL may be provided in the form of a string.
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+client.client.trading_pairs("BTC-USD", "ETH-US")
+```
+
+Expected output structure for response code `400` and `404`:
+
+```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
+
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Errors(
+        type="validation_error",
+        errors=[
+            hood.crypto_trading.schema.trading.Error(
+                detail="Select a valid choice.",
+                attr='symbol',
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
+)
+```
+
+</details>
+
+<details>
+<summary>Get Crypto Holdings</summary>
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `200`:
+
+```python
+
+```
+
+If paging, a `next` and `previous` URL may be provided in the form of a string.
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `400` and `404`:
+
+```python
+
+```
+
+</details>
+
+<details>
+<summary>Get Crypto Orders</summary>
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `200`:
+
+```python
+
+```
+
+If paging, a `next` and `previous` URL may be provided in the form of a string.
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `400` and `404`:
+
+```python
+
+```
+
+</details>
+
+<details>
+<summary>Place New Crypto Order</summary>
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `200`:
+
+```python
+
+```
+
+If paging, a `next` and `previous` URL may be provided in the form of a string.
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `400` and `404`:
+
+```python
+
+```
+
+</details>
+
+<details>
+<summary>Cancel Open Crypto Order</summary>
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `200`:
+
+```python
+
+```
+
+If paging, a `next` and `previous` URL may be provided in the form of a string.
+
+This endpoint may return an error response. For example, when providing an invalid symbol.
+
+```python
+from hood.crypto_trading import CryptoTradingClient, auth
+
+credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
+client = CryptoTradingClient(credential)
+...
+```
+
+Expected output structure for response code `400` and `404`:
+
+```python
+
+```
+
+</details>
 
 # Disclaimers
 

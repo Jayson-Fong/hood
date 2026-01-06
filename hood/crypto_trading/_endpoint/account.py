@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from .._protocols import Client as _Client
-from ...schema import account as _schema
+from ..schema import account as _schema
 
 if TYPE_CHECKING:
     from .. import structures as _structs

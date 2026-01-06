@@ -16,7 +16,7 @@ from typing import (
 
 import requests
 
-from .. import schema as _schema
+from . import schema as _schema
 
 
 if TYPE_CHECKING:

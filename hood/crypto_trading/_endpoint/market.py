@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Literal, Union
 
 from .._protocols import Client as _Client
-from ...schema import market as _schema
+from ..schema import market as _schema
 
 if TYPE_CHECKING:
+    import decimal
     from .. import structures as _structs
 
 
@@ -25,7 +26,7 @@ class MarketMixin(_Client):
         self,
         symbol: str,
         side: Literal["bid", "ask", "both"],
-        *quantity: Union[float, str, int],
+        *quantity: Union[float, str, int, "decimal.Decimal"],
     ) -> "_structs.MaybeAPIResponse[_schema.MarketEstimateResults]":
         # noinspection PyTypeChecker
         return self.make_parsed_api_request(

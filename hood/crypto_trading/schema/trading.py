@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Literal, List, Optional
 
 
-from . import Errors, Message
+from . import Error, Errors, Message
 
 
 # pylint: disable=too-many-instance-attributes
@@ -109,6 +109,7 @@ class OrderResults:
 
 
 __all__ = [
+    "Error",
     "Errors",
     "Message",
     "TradingPair",

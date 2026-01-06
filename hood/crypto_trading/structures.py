@@ -14,8 +14,9 @@ if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
     import requests
+
     # noinspection PyUnresolvedReferences
-    from .. import schema as _schema
+    from . import schema as _schema
 
 QueryParams = Dict[str, Union[str, int, float, List[Union[str, int, float]]]]
 
