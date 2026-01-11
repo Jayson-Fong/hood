@@ -10,8 +10,8 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
-    "requests",
-    "PyNaCl",
+    "requests>=2.32.4",
+    "PyNaCl>=1.6.2",
 ]
 
 [project.urls]

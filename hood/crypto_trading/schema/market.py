@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Literal, List, Optional
 
-from . import Errors
+from . import Error, Errors
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -40,4 +40,4 @@ class MarketEstimateResults:
     results: List[MarketEstimate] = field(default_factory=list)
 
 
-__all__ = ["BestBidAskResults", "Errors", "MarketEstimateResults"]
+__all__ = ["BestBidAskResults", "Error", "Errors", "MarketEstimateResults"]
