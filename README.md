@@ -797,7 +797,7 @@ hood.crypto_trading.structures.APIResponse(
 
 The authors do not provide any guarantees pertaining to this software's fitness for use. You are responsible for 
 evaluating the software and ensuring its proper functionality prior to use. For more information, please reference the 
-[license](LICENSE).
+license.
 
 You could lose money using this software. While the author seeks to ensure its proper function, the author does not
 provide any guarantee that the software will function as expected.
