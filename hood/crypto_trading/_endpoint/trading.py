@@ -177,12 +177,13 @@ class TradingMixin(_Client):
         Args:
             symbol: Trading pair symbol (e.g., "BTC-USD").
             side: Order side.
+            type: Order type that determines required and allowed config keys.
             asset_quantity: Quantity of the base asset to buy or sell.
             limit_price: Limit price per unit in the quote currency.
             client_order_id: Optional client-provided identifier; a UUID will be generated if omitted.
 
         Returns:
-            n API response containing the created `Order` on success or error on failure.
+            An API response containing the created `Order` on success or error on failure.
         """
 
     # noinspection PyShadowingBuiltins
@@ -231,6 +232,7 @@ class TradingMixin(_Client):
         Args:
             symbol: Trading pair symbol (e.g., "BTC-USD").
             side: Order direction.
+            type: Order type that determines required and allowed config keys.
             asset_quantity: Quantity of the base asset to buy or sell.
             client_order_id: Client-provided identifier for the order; if omitted, one is generated.
 
@@ -291,6 +293,7 @@ class TradingMixin(_Client):
         Args:
             symbol: Trading pair symbol (e.g., "BTC-USD").
             side: Order side, either "buy" or "sell".
+            type: Order type that determines required and allowed config keys.
             quote_amount: Amount expressed in the quote currency to place for the order.
             limit_price: Limit price to execute the order once the stop is triggered.
             stop_price: Stop price that, when reached, activates the limit order.
@@ -324,10 +327,11 @@ class TradingMixin(_Client):
         Args:
             symbol: Trading pair symbol to place the order for.
             side: Order side.
+            type: Order type that determines required and allowed config keys.
             asset_quantity: Quantity of the asset to buy or sell.
             stop_price: Trigger price for the stop-loss order.
             time_in_force: Order time-in-force policy.
-            client_order_id: Cclient-supplied identifier.
+            client_order_id: Client-supplied identifier.
 
         Returns:
             API response containing an `Order` on success or error on failure.
@@ -353,6 +357,7 @@ class TradingMixin(_Client):
         Args:
             symbol: Trading symbol for the order (e.g., "BTC-USD").
             side: Order side, either "buy" or "sell".
+            type: Order type that determines required and allowed config keys.
             quote_amount: Amount in the quote currency to fill.
                 Mutually exclusive with `asset_quantity`.
             stop_price: Trigger price at which the stop-loss order becomes active.
@@ -469,7 +474,7 @@ class TradingMixin(_Client):
 
         # noinspection PyTypeChecker
         return self.make_parsed_api_request(
-            f"api/v1/crypto/trading/orders/{urllib.parse.quote(id)}/cancel/",
+            f"api/v1/crypto/trading/orders/{urllib.parse.quote(id, safe='')}/cancel/",
             method=_constants.RequestMethod.POST,
             success_schema=_schema.Message,
             error_schema=_schema.Errors,

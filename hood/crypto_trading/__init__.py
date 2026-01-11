@@ -55,7 +55,6 @@ class CryptoTradingClient(
         """
 
         timestamp = _util.get_current_timestamp()
-        _logger.debug("Signing request with timestamp %s", timestamp)
 
         signature = self.credential.sign_message(path, body, timestamp, method)
         _logger.debug("Generated signature %s", signature)
@@ -127,8 +126,8 @@ class CryptoTradingClient(
 
         Args:
             result: Tuple of an HTTP response or None and Exception or None.
-            success_schema: Schema used to parse successful responses (status codes outside 400–599).
-            error_schema: Schema used to parse error responses (status codes 400–599).
+            success_schema: Schema used to parse successful responses (status codes outside 400-599).
+            error_schema: Schema used to parse error responses (status codes 400-599).
 
         Returns:
             An APIResponse containing:

@@ -40,4 +40,4 @@ def inject_qs(url: str, params: Optional[_struct.QueryParams] = None) -> str:
     return parsed_url._replace(query=updated_qs).geturl()
 
 
-__all__ = ["inject_qs", "get_current_timestamp"]
+__all__ = ["get_current_timestamp", "inject_qs"]

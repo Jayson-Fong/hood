@@ -70,7 +70,7 @@ print("Public Key (Base64):", public_key_base64, sep="\n\t")
 
 This will output in the following format:
 
-```
+```plaintext
 Private Key (Base64):
         AmkImtzGG3lW5BKXhqvJTxvFfL3gFqrRsOI9U/6d6CA=
 Public Key (Base64):
@@ -373,7 +373,7 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-client.client.trading_pairs("BTC-USD", "ETH-USD")
+client.trading_pairs("BTC-USD", "ETH-USD")
 ```
 
 Expected output structure for response code `200`:
@@ -424,7 +424,7 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-client.client.trading_pairs("BTC-USD", "ETH-US")
+client.trading_pairs("BTC-USD", "ETH-US")
 ```
 
 Expected output structure for response code `400` and `404`:
