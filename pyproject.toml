@@ -1,6 +1,6 @@
 [project]
 name = "hood"
-version = "0.0.1"
+version = "0.1.0"
 requires-python = ">=3.8"
 authors = [
     {name = "Jayson Fong", email = "jayson.fong@gatech.edu"}
