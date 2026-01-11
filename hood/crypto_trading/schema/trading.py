@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Literal, List, Optional
 
 
-from . import Errors, Message
+from . import Error, Errors, Message
 
 
 # pylint: disable=too-many-instance-attributes
@@ -89,7 +89,7 @@ class Order:
     executions: List[OrderExecution] = field(default_factory=list)
     type: Optional[Literal["limit", "market", "stop_limit", "stop_loss"]] = None
     state: Optional[
-        Literal["open", "cancelled", "partially_filled", "filled", "failed"]
+        Literal["open", "canceled", "partially_filled", "filled", "failed"]
     ] = None
     average_price: Optional[Decimal] = None
     filled_asset_quantity: Optional[Decimal] = None
@@ -109,17 +109,18 @@ class OrderResults:
 
 
 __all__ = [
+    "Error",
     "Errors",
-    "Message",
-    "TradingPair",
-    "TradingPairResults",
     "Holding",
     "HoldingResults",
-    "OrderExecution",
-    "MarketOrderConfig",
     "LimitOrderConfig",
-    "StopLossOrderConfig",
-    "StopLimitOrderConfig",
+    "MarketOrderConfig",
+    "Message",
     "Order",
+    "OrderExecution",
     "OrderResults",
+    "StopLimitOrderConfig",
+    "StopLossOrderConfig",
+    "TradingPair",
+    "TradingPairResults",
 ]
