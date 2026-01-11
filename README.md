@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[💼 Purpose](#purpose) | [🛠️️ Installation](#installation) | [🛡️ Disclaimers](#disclaimers) | [📋 Backlog](#backlog)
+[💼 Purpose](#purpose) | [🛠️️ Installation](#installation) | [🏁 Usage](#usage) | [🛡️ Disclaimers](#disclaimers)
 
 </div>
 
@@ -533,36 +533,106 @@ hood.crypto_trading.structures.APIResponse(
 <details>
 <summary>Get Crypto Orders</summary>
 
+Multiple types of orders are supported with different parameters. The client supports the following order
+types, specified through the `type` parameter, along with their required parameters:
+
+* limit
+  * quote_amount (float)
+  * asset_quantity (float)
+  * limit_price (float)
+* market
+  * asset_quantity (float)
+* stop_limit
+  * quote_amount (float)
+  * asset_quantity (float)
+  * limit_price (float)
+  * stop_price (float)
+  * time_in_force (str: gtc, gfd, gfw, gfm)
+* stop_loss
+  * quote_amount (float)
+  * asset_quantity (float)
+  * limit_price (float)
+  * stop_price (float)
+  * time_in_force (str: gtc, gfd, gfw, gfm)
+
+All order types require a currency pair symbol such as `BTC-USD`, accepted as a positional parameter. Only a single
+currency pair symbol is supported.
+
+For order types that accept both a `quote_amount` and a `asset_quantity`, you may only specify either `quote_amount` or
+`asset_quantity` - not both simultaneously. All methods accept a `side`, which must be either `buy` or `sell`, and you
+may optionally provide a `client_order_id`, a UUID for client reference. If a `client_order_id` is not specified, one
+will be automatically generated.
+
+If you intend on modifying the order using the library, it is suggested that you provide a `client_order_id` so that
+it is immediately consumable, such as for order cancellation. Otherwise, the automatically generated value is only
+available through the response.
+
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.holdings("USDC")
 ```
 
 Expected output structure for response code `200`:
 
 ```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.HoldingResults(
+        next=None,
+        previous=None,
+        results=[
+            hood.crypto_trading.schema.trading.Holding(
+                account_number="000000000000",
+                asset_code="USDC",
+                total_quantity=decimal.Decimal("1.000000000000000000"),
+                quantity_available_for_trading=decimal.Decimal("1.000000000000000000"),
+            ),
+        ],
+    ),
+    response=requests.Response(), 
+    error=None,
+)
 ```
 
 If paging, a `next` and `previous` URL may be provided in the form of a string.
 
-This endpoint may return an error response. For example, when providing an invalid symbol.
+This endpoint may return an error response. For example, when providing an invalid cursor.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.holdings(cursor="0")
 ```
 
 Expected output structure for response code `400` and `404`:
 
 ```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Errors(
+        type="client_error",
+        errors=[
+            hood.crypto_trading.schema.trading.Error(
+                detail="Not found.", 
+                attr=None,
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
+)
 ```
 
 </details>
@@ -575,31 +645,73 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.order("USDC-USD", side="buy", type="market", asset_quantity=0.01)
 ```
 
 Expected output structure for response code `200`:
 
 ```python
+import decimal
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Order(
+        id="296217b3-febe-4f27-a6d4-7ee569564d4d",
+        account_number="000000000000",
+        symbol="USDC-USD",
+        client_order_id="28055f9f-252e-4012-9e34-af93e1c00703",
+        side="buy",
+        executions=[],
+        type="market",
+        state="open",
+        average_price=None,
+        filled_asset_quantity=decimal.Decimal("0E-18"),
+        created_at="2026-01-10T20:50:13.931262-05:00",
+        updated_at="2026-01-10T20:50:14.362428-05:00",
+        market_order_config=hood.crypto_trading.schema.trading.MarketOrderConfig(
+            asset_quantity=decimal.Decimal("0.010000000000000000"),
+        ),
+        limit_order_config=None,
+        stop_loss_order_config=None,
+        stop_limit_order_config=None,
+    ),
+    response=requests.Response(),
+    error=None,
+)
 ```
 
-If paging, a `next` and `previous` URL may be provided in the form of a string.
-
-This endpoint may return an error response. For example, when providing an invalid symbol.
+This endpoint may return an error response. For example, when the asset quantity is outside the supported range.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.order("USDC-USD", side="buy", type="market", asset_quantity=1000000)
 ```
 
 Expected output structure for response code `400`:
 
 ```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Errors(
+        type="validation_error",
+        errors=[
+            hood.crypto_trading.schema.trading.Error(
+                detail="must be less than or equal to 250000.0000000000000000",
+                attr="market_order_config.asset_quantity",
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
+)
 ```
 
 </details>
@@ -612,31 +724,55 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.cancel("cc9c89d6-dea4-4dab-8354-0994e1cd080a")
 ```
 
 Expected output structure for response code `200`:
 
 ```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Message(
+        body='"Cancel request has been submitted for order cc9c89d6-dea4-4dab-8354-0994e1cd080a"',
+    ),
+    response=requests.Response(),
+    error=None,
+)
 ```
 
-If paging, a `next` and `previous` URL may be provided in the form of a string.
-
-This endpoint may return an error response. For example, when providing an invalid symbol.
+This endpoint may return an error response. For example, when it is not possible to cancel an order.
 
 ```python
 from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-...
+client.cancel("cc9c89d6-deaa-4dab-8354-0994e1cd080a")
 ```
 
 Expected output structure for response code `400` and `404`:
 
 ```python
+import requests
+import hood.crypto_trading.structures
+import hood.crypto_trading.schema.trading
 
+hood.crypto_trading.structures.APIResponse(
+    data=hood.crypto_trading.schema.trading.Errors(
+        type="validation_error",
+        errors=[
+            hood.crypto_trading.schema.trading.Error(
+                detail="This order cannot be canceled.",
+                attr="non_field_errors",
+            ),
+        ],
+    ),
+    response=requests.Response(),
+    error=None,
+)
 ```
 
 </details>
@@ -652,20 +788,3 @@ provide any guarantee that the software will function as expected.
 
 Information contained within this document and its associated software do not provide legal, financial, or accounting
 advice.
-
-# Backlog
-
-- [X] Endpoints
-  - [X] Account
-    - [X] Get Crypto Trading Account Details
-  - [X] Market Data
-    - [X] Get Best Price
-    - [X] Get Estimated Price
-  - [X] Trading
-    - [X] Get Crypto Trading Pairs
-    - [X] Get Crypto Holdings
-    - [X] Get Crypto Orders
-    - [X] Place New Crypto Order
-    - [X] Cancel Open Crypto Order
-- [ ] API
-  - [ ] Pagination Iterator
