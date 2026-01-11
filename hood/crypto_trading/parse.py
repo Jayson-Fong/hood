@@ -25,6 +25,16 @@ if TYPE_CHECKING:
 
 
 def unpack_union(field_type: Union[Type[Any], str]) -> Union[Type[Any], str]:
+    """
+    Extract the first contained type from a typing.Union, or return the provided type unchanged.
+
+    Args:
+        field_type: A type object or a forward-reference string.
+
+    Returns:
+        The first argument of the Union when `field_type` is a Union, otherwise unchanged.
+    """
+
     if get_origin(field_type) is Union:
         return get_args(field_type)[0]
 
@@ -38,6 +48,21 @@ _logger = logging.getLogger(__package__)
 
 
 def dataclass_pack(json_data: Any, schema: Type[_T]) -> Optional[_T]:
+    """
+    Create an instance of the given dataclass schema from a JSON-like dictionary.
+
+    This function maps keys from `json_data` to the fields of `schema`, recursively constructing nested dataclass
+    instances and lists when encountered. It will attempt basic numeric conversions for `int`, `float`, and
+    `decimal.Decimal` field types and will preserve raw values for other field types or forward references.
+
+    Args:
+        json_data: A JSON-like value expected to be a dict mapping field names to values.
+        schema: The dataclass type to construct.
+
+    Returns:
+        An instance of `schema` populated using `json_data`, or `None` if `json_data` is not a dict.
+    """
+
     if isinstance(json_data, dict):
         prepared_data = {}
         for field in fields(schema):
@@ -95,6 +120,22 @@ def dataclass_pack(json_data: Any, schema: Type[_T]) -> Optional[_T]:
 def parse_response(
     response: requests.Response, schema: Optional[Type[_T]] = None
 ) -> Optional[_T]:
+    """
+    Parse an HTTP response into an instance of the provided dataclass schema.
+
+    Parses the response body as JSON and constructs a dataclass instance of `schema` using dataclass_pack.
+    If `schema` is exactly `_schema.Message`, returns a Message instance with `body` set to the raw response text.
+    If `schema` is not provided or JSON parsing fails, no parsing is performed and `None` is returned.
+
+    Args:
+        response: The HTTP response to parse.
+        schema: The dataclass type to construct from the response JSON. If omitted, parsing is skipped.
+
+    Returns:
+        An instance of `schema` populated from the response JSON, a `_schema.Message` with
+        `body` when `schema` is `_schema.Message`, or `None` if parsing was skipped or failed.
+    """
+
     if not schema:
         _logger.debug("No schema provided, skipping parsing")
         return None

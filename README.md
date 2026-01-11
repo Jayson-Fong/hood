@@ -572,7 +572,7 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-client.holdings("USDC")
+client.orders(limit=1)
 ```
 
 Expected output structure for response code `200`:
@@ -584,19 +584,35 @@ import hood.crypto_trading.structures
 import hood.crypto_trading.schema.trading
 
 hood.crypto_trading.structures.APIResponse(
-    data=hood.crypto_trading.schema.trading.HoldingResults(
-        next=None,
+    data=hood.crypto_trading.schema.trading.OrderResults(
+        next="https://trading.robinhood.com/api/v1/crypto/trading/orders/?cursor=00000000000000000000000000000000000000000000000000000000&limit=1",
         previous=None,
         results=[
-            hood.crypto_trading.schema.trading.Holding(
+            hood.crypto_trading.schema.trading.Order(
+                id="faceaa50-0756-4a5e-b4e4-34e7b550ecec",
                 account_number="000000000000",
-                asset_code="USDC",
-                total_quantity=decimal.Decimal("1.000000000000000000"),
-                quantity_available_for_trading=decimal.Decimal("1.000000000000000000"),
+                symbol="BTC-USD",
+                client_order_id="440f4b24-4bd8-4c80-97e2-003886963970",
+                side="buy",
+                executions=[],
+                type="limit",
+                state="canceled",
+                average_price=None,
+                filled_asset_quantity=decimal.Decimal("0E-18"),
+                created_at="2026-01-10T21:03:29.896079-05:00",
+                updated_at="2026-01-10T21:03:48.484410-05:00",
+                market_order_config=None,
+                limit_order_config=hood.crypto_trading.schema.trading.LimitOrderConfig(
+                    quote_amount=None,
+                    asset_quantity=decimal.Decimal("0.000100000000000000"),
+                    limit_price=decimal.Decimal("90000.000000000000000000"),
+                ),
+                stop_loss_order_config=None,
+                stop_limit_order_config=None,
             ),
         ],
     ),
-    response=requests.Response(), 
+    response=requests.Response(),
     error=None,
 )
 ```
@@ -610,7 +626,7 @@ from hood.crypto_trading import CryptoTradingClient, auth
 
 credential = auth.Credential("API_KEY_HERE", b"PRIVATE_KEY_HERE")
 client = CryptoTradingClient(credential)
-client.holdings(cursor="0")
+client.orders(limit=1)
 ```
 
 Expected output structure for response code `400` and `404`:
@@ -625,7 +641,7 @@ hood.crypto_trading.structures.APIResponse(
         type="client_error",
         errors=[
             hood.crypto_trading.schema.trading.Error(
-                detail="Not found.", 
+                detail="Not found.",
                 attr=None,
             ),
         ],
